@@ -1,5 +1,91 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import html2pdf from "html2pdf.js";
+
 function App() {
-  return <h1>Dental Care App Working ✅</h1>;
-}
-export default App;
+  const [clients, setClients] = useState([]);
+    const [form, setForm] = useState({
+        patientName: "",
+            doctorName: "",
+                type: "",
+                    deliveryDate: "",
+                        collectionDate: ""
+                          });
+
+                            useEffect(() => {
+                                const saved = localStorage.getItem("dental-clients");
+                                    if (saved) setClients(JSON.parse(saved));
+                                      }, []);
+
+                                        useEffect(() => {
+                                            localStorage.setItem("dental-clients", JSON.stringify(clients));
+                                              }, [clients]);
+
+                                                const handleChange = (e) => {
+                                                    setForm({ ...form, [e.target.name]: e.target.value });
+                                                      };
+
+                                                        const handleSubmit = (e) => {
+                                                            e.preventDefault();
+                                                                if (!form.patientName) return alert("Patient name is required");
+                                                                    setClients([...clients, { ...form, id: Date.now() }]);
+                                                                        setForm({ patientName: "", doctorName: "", type: "", deliveryDate: "", collectionDate: "" });
+                                                                          };
+
+                                                                            const handleDelete = (id) => {
+                                                                                setClients(clients.filter(c => c.id !== id));
+                                                                                  };
+
+                                                                                    const exportPDF = () => {
+                                                                                        const element = document.getElementById("data-table");
+                                                                                            html2pdf().from(element).save("dental-records.pdf");
+                                                                                              };
+
+                                                                                                return (
+                                                                                                    <div style={{ padding: 20, maxWidth: 600, margin: "auto" }}>
+                                                                                                          <h2>Dental Care Client Records 🦷</h2>
+                                                                                                                <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+                                                                                                                        <input name="patientName" placeholder="Patient Name" value={form.patientName} onChange={handleChange} required /><br />
+                                                                                                                                <input name="doctorName" placeholder="Doctor Name" value={form.doctorName} onChange={handleChange} /><br />
+                                                                                                                                        <input name="type" placeholder="Treatment Type" value={form.type} onChange={handleChange} /><br />
+                                                                                                                                                <input name="deliveryDate" type="date" value={form.deliveryDate} onChange={handleChange} /><br />
+                                                                                                                                                        <input name="collectionDate" type="date" value={form.collectionDate} onChange={handleChange} /><br />
+                                                                                                                                                                <button type="submit">Add Record</button>
+                                                                                                                                                                      </form>
+
+                                                                                                                                                                            <button onClick={exportPDF}>Export to PDF</button>
+
+                                                                                                                                                                                  <div id="data-table" style={{ marginTop: 20 }}>
+                                                                                                                                                                                          <table border="1" cellPadding="6" width="100%">
+                                                                                                                                                                                                    <thead>
+                                                                                                                                                                                                                <tr>
+                                                                                                                                                                                                                              <th>Patient</th>
+                                                                                                                                                                                                                                            <th>Doctor</th>
+                                                                                                                                                                                                                                                          <th>Type</th>
+                                                                                                                                                                                                                                                                        <th>Delivery</th>
+                                                                                                                                                                                                                                                                                      <th>Collection</th>
+                                                                                                                                                                                                                                                                                                    <th>Action</th>
+                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                          </thead>
+                                                                                                                                                                                                                                                                                                                                    <tbody>
+                                                                                                                                                                                                                                                                                                                                                {clients.map((client) => (
+                                                                                                                                                                                                                                                                                                                                                              <tr key={client.id}>
+                                                                                                                                                                                                                                                                                                                                                                              <td>{client.patientName}</td>
+                                                                                                                                                                                                                                                                                                                                                                                              <td>{client.doctorName}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                              <td>{client.type}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                              <td>{client.deliveryDate}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                              <td>{client.collectionDate}</td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                              <td><button onClick={() => handleDelete(client.id)}>🗑️</button></td>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ))}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    {clients.length === 0 && (
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <tr><td colSpan="6">No records yet</td></tr>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              )}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </tbody>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </table>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            );
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            export default App;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
